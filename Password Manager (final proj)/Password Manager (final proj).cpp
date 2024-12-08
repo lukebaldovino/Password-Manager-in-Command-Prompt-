@@ -53,7 +53,7 @@ int main()
         case 2:
             ViewAcc(accounts);
             break;
-        case 3: 
+        case 3:
             SearchAcc(accounts);
             break;
         case 4:
@@ -68,7 +68,7 @@ int main()
             break;
         default:
             cout << "\t\t\t\t\tInvalid choice! Try again\n";
-			ClearInput();
+            ClearInput();
         }
     } while (choice != 6);
 
@@ -88,13 +88,16 @@ void AddAcc(vector<account>& accounts, int& nextId) {
         opt = tolower(opt);
         if (opt == 'y') {
             int passLength;
-            cout << "\t\t\t\t\tEnter desired Length: ";
-            cin >> passLength;
-			if (cin.fail()) {
-				cout << "\t\t\t\t\tInvalid input! Please enter a number.\n";
-				ClearInput();
-				continue;
-			}
+            //avoid input error 
+            do {
+                cout << "\t\t\t\t\tEnter desired Length: ";
+                cin >> passLength;
+                if (cin.fail() || passLength <= 0) {
+                    cout << "\t\t\t\t\tInvalid input! Please enter a number.\n";
+                    ClearInput();
+                    continue;
+                }
+            } while (passLength <= 0 || cin.fail());
             NewAcc.password = GeneratePass(passLength);
             cout << "\t\t\t\t\tGenerated Password: " << NewAcc.password << endl;
             accounts.push_back(NewAcc);
@@ -108,12 +111,12 @@ void AddAcc(vector<account>& accounts, int& nextId) {
         }
         else {
             cout << "\t\t\t\t\tInvalid Input! Please type y for yes and n for no.\n";
-			ClearInput();
-			continue;
+            ClearInput();
+            continue;
         }
     } while (opt != 'y' && opt != 'n');
-    return; 
-  
+    return;
+
 }
 
 void ViewAcc(const vector<account>& accounts) {
@@ -124,9 +127,9 @@ void ViewAcc(const vector<account>& accounts) {
 
     for (const auto& acc : accounts) {
         cout << setw(20) << "ID: " << acc.id
-             << setw(15) << "Platform: " << acc.platform
-             << setw(20) << "Username: " << acc.username
-             << setw(15) << "Password: " << acc.password << "\n";
+            << setw(15) << "Platform: " << acc.platform
+            << setw(20) << "Username: " << acc.username
+            << setw(15) << "Password: " << acc.password << "\n";
     }
 }
 
@@ -135,7 +138,7 @@ void SearchAcc(const vector<account>& accounts) {
     cout << "\t\t\t\t\tEnter username/platform to search: ";
     cin >> search;
 
-	bool found = false;
+    bool found = false;
     for (const auto& acc : accounts) {
         if (acc.platform == search || acc.username == search) {
             cout << "\t\t\t" << "ID: " << acc.id << ", Platform: " << acc.platform
@@ -143,10 +146,10 @@ void SearchAcc(const vector<account>& accounts) {
             found = true;
         }
     }
-	if (!found) {
+    if (!found) {
         cout << "\t\t\t\t\tAccount not found!\n";
     }
-		
+
 }
 
 void UpdAcc(vector<account>& accounts) {
@@ -161,19 +164,21 @@ void UpdAcc(vector<account>& accounts) {
             cin >> acc.platform;
             cout << "\t\t\t\t\tEnter new username: ";
             cin >> acc.username;
-
+            //avoid input error
             do {
                 cout << "\t\t\tWould you like us to generate a password for you? (y/n): ";
                 cin >> opt;
                 if (opt == 'y') {
                     int passLength;
-                    cout << "\t\t\t\t\tEnter desired Length: ";
-                    cin >> passLength;
-					if (cin.fail()) {
-						cout << "\t\t\t\t\tInvalid input! Please enter a number.\n";
-						ClearInput();
-						continue;
-					}
+                    do {
+                        cout << "\t\t\t\t\tEnter desired Length: ";
+                        cin >> passLength;
+                        if (cin.fail() || passLength <= 0) {
+                            cout << "\t\t\t\t\tInvalid input! Please enter a number.\n";
+                            ClearInput();
+                            continue;
+                        }
+                    } while (passLength <= 0 || cin.fail());
                     acc.password = GeneratePass(passLength);
                     cout << "\t\t\t\t\tGenerated Password: " << acc.password << endl;
                     cout << "\t\t\t\t\tAccount Updated! \n";
@@ -184,14 +189,14 @@ void UpdAcc(vector<account>& accounts) {
                     cout << "\t\t\t\t\tAccount Updated! \n";
                 }
                 else {
-					cout << "\t\t\t\t\tInvalid Input! Please type y for yes and n for no.\n";
-					ClearInput();   
+                    cout << "\t\t\t\t\tInvalid Input! Please type y for yes and n for no.\n";
+                    ClearInput();
                 }
             } while (opt != 'y' && opt != 'n');
-            return; 
+            return;
         }
     }
-    cout << "\t\t\t\t\tAccount not found\n"; 
+    cout << "\t\t\t\t\tAccount not found\n";
 }
 
 void DelAcc(vector<account>& accounts) {
@@ -233,7 +238,7 @@ void saveFile(const vector<account>& accounts, const string& filename) {
 
     // Write each account to the file in CSV format
     for (const auto& acc : accounts) {
-        file <<acc.id<< "," << acc.platform << "," << acc.username << "," << acc.password << "\n";
+        file << acc.id << "," << acc.platform << "," << acc.username << "," << acc.password << "\n";
     }
 
     file.close();
@@ -248,30 +253,30 @@ void loadFile(vector<account>& accounts, const string& filename, int& nextId) {
     }
 
     string line;
-	int maxId = 0;
+    int maxId = 0;
     while (getline(file, line)) {
         stringstream ss(line);
         account acc;
 
         // Parse platform, username, and password from the line
-		ss >> acc.id;
-		ss.ignore(1);
+        ss >> acc.id;
+        ss.ignore(1);
         getline(ss, acc.platform, ',');
         getline(ss, acc.username, ',');
         getline(ss, acc.password, ',');
 
         accounts.push_back(acc);
-		if (acc.id > maxId) {
-			maxId = acc.id;
-		}
+        if (acc.id > maxId) {
+            maxId = acc.id;
+        }
     }
 
     file.close();
     cout << "\t\t\t\t\tAccounts loaded from file successfully.\n";
-	nextId = maxId + 1;
+    nextId = maxId + 1;
 }
 
 void ClearInput() {
-	cin.clear();
+    cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
